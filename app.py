@@ -7,7 +7,7 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption= 'Uploaded Image.',  use_container_width=True)
+    st.image(image, caption='Uploaded Image.', width='stretch')
 
 st.sidebar.header('Customization Options')
 style = st.sidebar.selectbox('Blog Style', ['Casual', 'Formal', 'Informative'])
@@ -27,29 +27,37 @@ if uploaded_file:
     else: 
         st.error("Invalid image file. Please upload a valid JPG or PNG image, less than 5MB.")
 
+
+
 from ai_generator import AIGenerator
 import os
-user_prompt = st.text_input("Blog Topic/Prompt (e.g., 'Describe this scene')")  # User input
 
-if st.button("Generate Blog") and 'processed_image' in st.session_state:
-    with st.spinner("Generating..."):  # UX (Goal 2)
-        generator = AIGenerator(api_key=os.getenv('euri-c243bba3cbdc9b7bb96b5c1f8ebbd74fe717da1138b22baf62ad0c9e2dd604d6'))
+user_prompt = st.text_input("Blog Topic/Prompt (e.g., 'Describe this scene')")
+
+if st.button("Generate Blog") and 'preprocessed_image' in st.session_state:
+    with st.spinner("Generating..."):
+        api_key = "euri-5cd3ca21b0a6363bd776ef0340d2457d9d11d4af3c46dda391134d95ae793624"
+        generator = AIGenerator(api_key=api_key)
         raw_blog = generator.generate_blog(
-            st.session_state.processed_image, user_prompt, style, tone, Length
+            st.session_state.preprocessed_image, 
+            user_prompt, 
+            style, 
+            tone, 
+            Length
         )
         st.session_state.raw_blog = raw_blog
-        st.markdown(raw_blog)  # Preview (User Story 3)
-
+        st.markdown(raw_blog)
 
 from blog_formatter import BlogFormatter
 
-if "raw_blog" in st.session_state and 'processed_image' in st.session_state:
-    md, html = BlogFormatter.format(
-        st.session_state.raw_blog, st.session_state.processed_image
-    )
-    st.subheader("Formatted Blog Preview")
-    st.code(md, language = 'markdown')
+if 'raw_blog' in st.session_state:
+    md, html = BlogFormatter.format(st.session_state.raw_blog, st.session_state.preprocessed_image)
+    st.subheader("Markdown Preview")
+    st.code(md, language='markdown')
 
+    # Download
+    st.download_button("Download Markdown", md, "blog.md", "text/markdown")  # Core Feature
+    st.download_button("Download HTML", html, "blog.html", "text/html")
 
 
 
