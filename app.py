@@ -60,4 +60,8 @@ if 'raw_blog' in st.session_state:
     st.download_button("Download HTML", html, "blog.html", "text/html")
 
 
-
+if 'raw_blog' in st.session_state:
+    edited_blog = st.text_area("Edit Content", st.session_state.raw_blog, height=300)  # User Story 3
+    if st.button("Update"):
+        st.session_state.raw_blog = edited_blog
+        st.rerun()  # Refresh preview
