@@ -31,6 +31,7 @@ if uploaded_file:
 
 from ai_generator import AIGenerator
 import os
+from io import BytesIO
 
 user_prompt = st.text_input("Blog Topic/Prompt (e.g., 'Describe this scene')")
 
@@ -65,3 +66,14 @@ if 'raw_blog' in st.session_state:
     if st.button("Update"):
         st.session_state.raw_blog = edited_blog
         st.rerun()  # Refresh preview
+
+col1, col2 = st.columns([1, 2])
+with col1:
+    st.image(Image.open(BytesIO(st.session_state.processed_image)))  # Side preview
+with col2:
+    if 'raw_blog' in st.session_state:
+        st.markdown(st.session_state.raw_blog)
+
+# Sharing (Core Feature)
+if st.button("Generate Share Link"):
+    st.success("Share: " + st.secrets["app_url"])  # Or use ngrok for local
